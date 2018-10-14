@@ -18,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   ApiService apiService = ApiService();
 
+  String _username;
   User _user;
   bool get isLoading => (_user == null);
 
@@ -26,6 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     MmkvFlutter.getInstance()
         .then((kv) => kv.getString(AuthManager.KEY_USERNAME))
+        .then((username) => _showUserName(username))
         .then((username) => apiService.getUser(username))
         .then((map) => User.initialFrom(map))
         .then((user) => _showUserProfile(user));
@@ -37,8 +39,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(title: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(isLoading ? 'loading' : _user.login),
-            isLoading ? Container() : CircleAvatar(backgroundImage: AdvancedNetworkImage(_user.avatarUrl, useDiskCache: true))
+            Text(_username == null ? "" : _username),
+            isLoading ? Container() : CircleAvatar(
+                backgroundImage: AdvancedNetworkImage(_user.avatarUrl, useDiskCache: true)
+            )
           ])),
       body: isLoading ? LoadingContent() : _buildUserProfile(),
     );
@@ -55,5 +59,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       ],
     );
+  }
+
+  String _showUserName(String username) {
+    setState(() {
+      this._username = username;
+    });
+    return username;
   }
 }
